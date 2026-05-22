@@ -1,5 +1,4 @@
-   global glSelf = obj.find('self')
-   global glPath = glSelf.workingPath
+#!/usr/bin/env origo
 
    import 'options'
    import './lib/eiscp'
@@ -15,8 +14,10 @@
       responseOutputFile = nil
    }
 
-   global glConnection = nil
-   global glFriendlyOptions = array<table>
+   glSelf = obj.find('self')
+   glPath = glSelf.workingPath
+   glConnection = nil
+   glFriendlyOptions = array<table>
 
 ----------------------------------------------------------------------------------------------------------------------
 -- Command-line option management
@@ -36,7 +37,7 @@ end
 function buildOptionParser():table
    glFriendlyOptions:clear()
 
-   local parser = options({
+   parser = options({
       name = 'Onkyo A/V Remote',
       cmdName = 'onkyo.tiri',
       description = [[Control Onkyo network-enabled A/V receivers using eISCP.
@@ -92,8 +93,8 @@ For verbose logging add --log-api.]],
 
    for command, cmddef in pairs(glCommands.commands.main) do
       if not parser.getParam(command) then
-         local names = array<string> { command }
-         local lower_name = command:lower()
+         names = array<string> { command }
+         lower_name = command:lower()
          if lower_name != command and not parser.getParam(lower_name) then
             names:push(lower_name)
          end
@@ -305,7 +306,7 @@ function doSendCommand(Command)
    connection = doConnect()
 
    -- Split commands by comma and process each one
-   commands = string.split(Command, ',')
+   local commands = string.split(Command, ',')
 
    for i, cmd in commands do
       cmd = rxCommand.extract(cmd)  -- Trim whitespace
@@ -337,7 +338,7 @@ end
 -- Resolve friendly command options into raw ISCP command strings.
 
 function findCommandValue(Command:str, Value:str)
-   local cmddef = glCommands.commands.main[Command]
+   cmddef = glCommands.commands.main[Command]
    if not cmddef or not cmddef.values then return nil end
 
    for value_key, value_def in pairs(cmddef.values) do
@@ -356,12 +357,12 @@ function findCommandValue(Command:str, Value:str)
 end
 
 function collectFriendlyCommands(Args:table)
-   local commands = array<string>
+   commands = array<string>
 
    for option in values(glFriendlyOptions) do
-      local value = Args[option.name]
+      value = Args[option.name]
       if value != nil then
-         local command_value = findCommandValue(option.command, value)
+         command_value = findCommandValue(option.command, value)
          if command_value is nil then
             return nil, option.name, option.command
          end
@@ -387,7 +388,7 @@ end
 
    if args.help then
       if args.topic then
-         local param = parser.getParam(tostring(args.topic))
+         param = parser.getParam(tostring(args.topic))
          if param and param.eiscpCommand then
             showCommandHelp(param.eiscpCommand)
          else
@@ -401,7 +402,7 @@ end
 
    applyOptions(args)
 
-   commands, failed_option, failed_command = collectFriendlyCommands(args)
+   local commands, failed_option, failed_command = collectFriendlyCommands(args)
    if failed_option then
       print(f'Error: Value "{args[failed_option]}" not found for friendly command "{failed_option}"')
       print('')
@@ -415,7 +416,7 @@ end
 
    if #commands > 0 then
       printBanner()
-      doSendCommand(commands:join(','))
+      doSendCommand(commands:concat(','))
    elseif args.discover then
       printBanner()
       doDiscovery()

@@ -8,6 +8,8 @@ Core eISCP (Integra Serial Control Protocol) implementation for Onkyo receivers
 
    include 'network'
 
+   glSelf = obj.find('self')
+   glPath = glSelf.workingPath
    loadFile(glPath .. 'lib/eiscp_commands.tiri')
    import './device_capabilities'
 
