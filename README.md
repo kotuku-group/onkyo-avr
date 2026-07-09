@@ -1,6 +1,6 @@
 # Onkyo AV Remote
 
-A Tiri-based implementation of the Onkyo eISCP (Integra Serial Control Protocol) for controlling Onkyo network-enabled audio receivers. This project replicates the functionality of the Python [onkyo-eiscp](https://github.com/miracle2k/onkyo-eiscp) project by using the [Kotuku](https://github.com/parasol-framework/kotuku) framework.
+A Tiri-based implementation of the Onkyo eISCP (Integra Serial Control Protocol) for controlling Onkyo network-enabled audio receivers. This project replicates the functionality of the Python [onkyo-eiscp](https://github.com/miracle2k/onkyo-eiscp) project by using the [Kotuku](https://github.com/kotuku-group/kotuku) framework.
 
 Can be used as a command-line tool or Tiri library.
 

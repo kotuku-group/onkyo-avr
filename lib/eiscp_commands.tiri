@@ -70,7 +70,7 @@ global glCommands = {
         values = {
           aabbccddeeffgghhiijjkkllmm = {
             name = "aabbccddeeffgghhiijjkkllmm",
-            description = "sets Audio Muting by Channel\nxx=00 Muting Off\nxx=01 Muting On\nxx=TG Muting Wrap-Around\nfor not exist channel is always 00.\n\naa:Front Left\nbb:Front Right\ncc:Center\ndd:Surround Left\nee:Surround Right\nff:Surround Back Left\ngg:Surround Back Right\nhh:Subwoofer 1\nii:Height 1 Left\njj:Height 1 Right\nkk:Height 2 Left\nll:Height2 Right\nmm:Subwoofer 2",
+            description = "sets Audio Muting by Channel\nxx=00 Muting Off\nxx=01 Muting On\nxx=TG Muting Wrap-Around\nfor not exist channel is always 00.\n\naa:Front Left\nbb:Front Right\ncc:Centre\ndd:Surround Left\nee:Surround Right\nff:Surround Back Left\ngg:Surround Back Right\nhh:Subwoofer 1\nii:Height 1 Left\njj:Height 1 Right\nkk:Height 2 Left\nll:Height2 Right\nmm:Subwoofer 2",
             models = "set1"
           },
           QSTN = {
@@ -393,36 +393,36 @@ global glCommands = {
       },
       TCT = {
         name = "tone-center",
-        description = "Tone(Center) Command",
+        description = "Tone(Centre) Command",
         values = {
           ["B{xx}"] = {
             name = "b-xx",
-            description = "Center Bass (xx is \"-A\"...\"00\"...\"+A\"[-10...0...+10 2 step]",
+            description = "Centre Bass (xx is \"-A\"...\"00\"...\"+A\"[-10...0...+10 2 step]",
             models = "set1"
           },
           ["T{xx}"] = {
             name = "t-xx",
-            description = "Center Treble (xx is \"-A\"...\"00\"...\"+A\"[-10...0...+10 2 step]",
+            description = "Centre Treble (xx is \"-A\"...\"00\"...\"+A\"[-10...0...+10 2 step]",
             models = "set1"
           },
           BUP = {
             name = "bass-up",
-            description = "sets Center Bass up(2 step)",
+            description = "sets Centre Bass up(2 step)",
             models = "set1"
           },
           BDOWN = {
             name = "bass-down",
-            description = "sets Center Bass down(2 step)",
+            description = "sets Centre Bass down(2 step)",
             models = "set1"
           },
           TUP = {
             name = "treble-up",
-            description = "sets Center Treble up(2 step)",
+            description = "sets Centre Treble up(2 step)",
             models = "set1"
           },
           TDOWN = {
             name = "treble-down",
-            description = "sets Center Treble down(2 step)",
+            description = "sets Centre Treble down(2 step)",
             models = "set1"
           },
           QSTN = {
@@ -687,16 +687,16 @@ global glCommands = {
       },
       CTL = {
         name = "center-temporary-level",
-        description = "Center (temporary) Level Command",
+        description = "Centre (temporary) Level Command",
         values = {
           ["(-24, 24)"] = {
             name = "12-0db-0-0db-12-0db",
-            description = "sets Center Level -12.0dB - 0.0dB - +12.0dB(0.5dB Step)",
+            description = "sets Centre Level -12.0dB - 0.0dB - +12.0dB(0.5dB Step)",
             models = "set1"
           },
           ["(-12, 12)"] = {
             name = "12db-0db-12db",
-            description = "sets Center Level -12dB - 0dB - +12dB",
+            description = "sets Centre Level -12dB - 0dB - +12dB",
             models = "set1"
           },
           UP = {
@@ -722,7 +722,7 @@ global glCommands = {
         values = {
           aaabbbcccdddeeefffggghhhiiijjjkkklllmmm = {
             name = "levels",
-            description = "sets Temporary Channel Level\nSubwoofer1/2 xxx=-1E(-15.0dB)~000(0.0dB)~+18(+12.0dB)\nOther Ch xxx=-18(-12.0dB)~000(0.0dB)~+18(+12.0dB)\nfor not exist channel is always 000.\n\naaa:Front Left\nbbb:Front Right\nccc:Center\nddd:Surround Left\neee:Surround Right\nfff:Surround Back Left\nggg:Surround Back Right\nhhh:Subwoofer 1\niii:Height 1 Left\njjj:Height 1 Right\nkkk:Height 2 Left\nlll:Height2 Right\nmmm:Subwoofer 2",
+            description = "sets Temporary Channel Level\nSubwoofer1/2 xxx=-1E(-15.0dB)~000(0.0dB)~+18(+12.0dB)\nOther Ch xxx=-18(-12.0dB)~000(0.0dB)~+18(+12.0dB)\nfor not exist channel is always 000.\n\naaa:Front Left\nbbb:Front Right\nccc:Centre\nddd:Surround Left\neee:Surround Right\nfff:Surround Back Left\nggg:Surround Back Right\nhhh:Subwoofer 1\niii:Height 1 Left\njjj:Height 1 Right\nkkk:Height 2 Left\nlll:Height2 Right\nmmm:Subwoofer 2",
             models = "set1"
           },
           QSTN = {
@@ -3246,7 +3246,7 @@ global glCommands = {
       },
       SCD = {
         name = "screen-centered-dialog-dialog-enahncement",
-        description = "Screen Centered Dialog / Dialog Enahncement",
+        description = "Screen Centreed Dialog / Dialog Enahncement",
         values = {
           ["00"] = {
             name = "enhancement-off",
@@ -3277,26 +3277,26 @@ global glCommands = {
       },
       CTS = {
         name = "center-spread-for-dolby-surround",
-        description = "Center Spread for Dolby Surround",
+        description = "Centre Spread for Dolby Surround",
         values = {
           ["00"] = {
             name = "center-off",
-            description = "sets Center Spread Off",
+            description = "sets Centre Spread Off",
             models = "set1"
           },
           ["01"] = {
             name = "center-on",
-            description = "sets Center Spread On",
+            description = "sets Centre Spread On",
             models = "set1"
           },
           TG = {
             name = "toggle",
-            description = "sets Center Spread Wrap-Around",
+            description = "sets Centre Spread Wrap-Around",
             models = "set1"
           },
           QSTN = {
             name = "query",
-            description = "gets The Center Spread State",
+            description = "gets The Centre Spread State",
             models = "set1"
           }
         }
@@ -3355,51 +3355,51 @@ global glCommands = {
       },
       CTW = {
         name = "center-width-for-plii-music",
-        description = "Center Width for PLII Music",
+        description = "Centre Width for PLII Music",
         values = {
           ["(0, 7)"] = {
             name = "no-0-7",
-            description = "sets Center Width",
+            description = "sets Centre Width",
             models = "set1"
           },
           UP = {
             name = "up",
-            description = "sets Center Width Up",
+            description = "sets Centre Width Up",
             models = "set1"
           },
           DOWN = {
             name = "down",
-            description = "sets Center Width Down",
+            description = "sets Centre Width Down",
             models = "set1"
           },
           QSTN = {
             name = "query",
-            description = "gets The Center Width State",
+            description = "gets The Centre Width State",
             models = "set1"
           }
         }
       },
       CTI = {
         name = "center-image-for-neo-6-music",
-        description = "Center Image for Neo:6 Music",
+        description = "Centre Image for Neo:6 Music",
         values = {
           ["(0, 10)"] = {
-            description = "sets Center Image",
+            description = "sets Centre Image",
             models = "set1"
           },
           UP = {
             name = "up",
-            description = "sets Center Image Up",
+            description = "sets Centre Image Up",
             models = "set1"
           },
           DOWN = {
             name = "down",
-            description = "sets Center Image Down",
+            description = "sets Centre Image Down",
             models = "set1"
           },
           QSTN = {
             name = "query",
-            description = "gets The Center Image State",
+            description = "gets The Centre Image State",
             models = "set1"
           }
         }
@@ -3498,7 +3498,7 @@ global glCommands = {
               "6-c-s",
               "7-f-c-s"
             },
-            description = "sets Speaker Information\n\na:Subwoofer 0:No,1:Yes/1ch,2:2ch\nb:Front 1:Small,2:Large\nc:Center 0:None,1:Small,2:Lage\nd:Surround 0:None,1:Small,2:Lage\ne:Surround Back 0:None,1:Small,2:Lage\nf:Height 1 0:None,1:Small,2:Lage\ng:Height 2 0:None,1:Small,2:Lage\nhhh:Crossover 50,80,100,150,200\ni:Height 1 Position 0:No,1:FH,2:TF,3:TM,4:TR,5:RH,6:DD SP(F),7:DD SP(S),8:DD SP(B)\nj:Height 2 Position 0:No,1:FH,2:TF,3:TM,4:TR,5:RH,6:DD SP(F),7:DD SP(S),8:DD SP(B)\nk:Bi-Amp 0:No,1:F,3:F+C,5:F+S,6:C+S,7:F+C+S",
+            description = "sets Speaker Information\n\na:Subwoofer 0:No,1:Yes/1ch,2:2ch\nb:Front 1:Small,2:Large\nc:Centre 0:None,1:Small,2:Lage\nd:Surround 0:None,1:Small,2:Lage\ne:Surround Back 0:None,1:Small,2:Lage\nf:Height 1 0:None,1:Small,2:Lage\ng:Height 2 0:None,1:Small,2:Lage\nhhh:Crossover 50,80,100,150,200\ni:Height 1 Position 0:No,1:FH,2:TF,3:TM,4:TR,5:RH,6:DD SP(F),7:DD SP(S),8:DD SP(B)\nj:Height 2 Position 0:No,1:FH,2:TF,3:TM,4:TR,5:RH,6:DD SP(F),7:DD SP(S),8:DD SP(B)\nk:Bi-Amp 0:No,1:F,3:F+C,5:F+S,6:C+S,7:F+C+S",
             models = "set1"
           },
           QSTN = {
@@ -3513,7 +3513,7 @@ global glCommands = {
         description = "Speaker Distance Command",
         values = {
           Muaaabbbcccdddeeefffggghhhiiijjjkkklllmmm = {
-            description = "sets Speaker Distance\nxxx=001-384 (0.01m - 9.00m unit is meters)\nxxx=001-12C (0.1ft - 30.0ft unit is feet)\nxxx=001-2D0 (0'0-1/2\" - 30'0\" unit is feet/inch)\nfor not exist channel is always 000.\n\nM:MCACC Memory 1-6\nu:Unit 0:feet,1:meters,2:feet/inch\naaa:Front Left\nbbb:Front Right\nccc:Center\nddd:Surround Left\neee:Surround Right\nfff:Surround Back Left\nggg:Surround Back Right\nhhh:Subwoofer 1\niii:Height 1 Left\njjj:Height 1 Right\nkkk:Height 2 Left\nlll:Height2 Right\nmmm:Subwoofer 2",
+            description = "sets Speaker Distance\nxxx=001-384 (0.01m - 9.00m unit is meters)\nxxx=001-12C (0.1ft - 30.0ft unit is feet)\nxxx=001-2D0 (0'0-1/2\" - 30'0\" unit is feet/inch)\nfor not exist channel is always 000.\n\nM:MCACC Memory 1-6\nu:Unit 0:feet,1:meters,2:feet/inch\naaa:Front Left\nbbb:Front Right\nccc:Centre\nddd:Surround Left\neee:Surround Right\nfff:Surround Back Left\nggg:Surround Back Right\nhhh:Subwoofer 1\niii:Height 1 Left\njjj:Height 1 Right\nkkk:Height 2 Left\nlll:Height2 Right\nmmm:Subwoofer 2",
             models = "set1"
           },
           QSTN = {
@@ -3804,7 +3804,7 @@ global glCommands = {
           },
           ["03"] = {
             name = "front-center",
-            description = "sets Pre Amp Mode Front+Center",
+            description = "sets Pre Amp Mode Front+Centre",
             models = "set1"
           },
           ["07"] = {

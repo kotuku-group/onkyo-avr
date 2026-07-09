@@ -177,7 +177,7 @@ function eiscp.connect(Host, Port, Timeout, LogFile)
    connect_error = ERR_Okay
 
    connection = {
-      socket            = socket,
+      socket            = nil,
       lastResponse      = nil,
       deviceInfo        = nil,
       deviceModel       = nil,
@@ -198,10 +198,6 @@ function eiscp.connect(Host, Port, Timeout, LogFile)
          elseif State is NTC_DISCONNECTED then
             msg('Connection closed')
             connect_error = ERR_Disconnected
-            Socket.acSignal()
-         elseif State is NTC_FAILED then
-            msg('Connection failed')
-            connect_error = ERR_ConnectionRefused
             Socket.acSignal()
          end
       end,

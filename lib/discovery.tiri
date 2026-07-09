@@ -95,8 +95,8 @@ discovery.findReceivers = function(Timeout, FilterIP, Limit)
    totalSent  = 0
    interfaces = getNetworkInterfaces()
 
-   for interface in values(interfaces) do
-      msg(f'Using interface {interface.addr} -> broadcast {interface.broadcast}')
+   for iface in values(interfaces) do
+      msg(f'Using interface {iface.addr} -> broadcast {iface.broadcast}')
 
       for packetStr in values(packetStrs) do
          -- Create socket that can both send and receive (like Python version)
@@ -105,13 +105,13 @@ discovery.findReceivers = function(Timeout, FilterIP, Limit)
             incoming = function(Socket)
                local err, bytesRead = Socket.mtRecvFrom(source, buffer)
                if (err is ERR_Okay) and (bytesRead > 0) then
-                  local senderIP = mNet.AddressToStr(source)
+                  local err, senderIP = mNet.AddressToStr(source)
                   local senderPort = source.port
 
                   msg(f'Received {bytesRead} bytes from {senderIP}:{senderPort}')
 
                   -- Skip echo packets from our own machine
-                  if senderIP is interface.addr then
+                  if senderIP is iface.addr then
                      msg('Skipping echo packet from our own interface')
                      return
                   end
@@ -164,21 +164,21 @@ discovery.findReceivers = function(Timeout, FilterIP, Limit)
          if socket then
             -- Send to broadcast address
             local dest = struct.new('IPAddress')
-            local addrErr = mNet.StrToAddress(interface.broadcast, dest)
+            local addrErr = mNet.StrToAddress(iface.broadcast, dest)
             if addrErr is ERR_Okay then
                dest.port = DISCOVERY_PORT
 
                local err, bytesSent = socket.mtSendTo(dest, packetStr)
                if err is ERR_Okay then
                   totalSent++
-                  msg('Sent eISCP discovery packet to ' .. interface.broadcast .. ' (' .. bytesSent .. ' bytes)')
+                  msg('Sent eISCP discovery packet to ' .. iface.broadcast .. ' (' .. bytesSent .. ' bytes)')
                   table.insert(sockets, socket)
                else
-                  msg('Failed to send via interface ' .. interface.addr .. ': ' .. mSys.GetErrorMsg(err))
+                  msg('Failed to send via iface ' .. iface.addr .. ': ' .. mSys.GetErrorMsg(err))
                   socket = nil
                end
             else
-               msg('Failed to convert broadcast address ' .. interface.broadcast .. ': ' .. mSys.GetErrorMsg(addrErr))
+               msg('Failed to convert broadcast address ' .. iface.broadcast .. ': ' .. mSys.GetErrorMsg(addrErr))
                socket = nil
             end
          end
