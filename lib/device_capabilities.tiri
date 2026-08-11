@@ -10,7 +10,15 @@ Handles model detection, modelset mapping, and command filtering
 ----------------------------------------------------------------------------------------------------------------------
 -- Parse NRIQSTN XML response to extract device information
 
-capabilities.parseDeviceInfo = function(response:table)
+-- Resolve an XPath to its string value, returning nil if the path is absent.
+
+function evaluatePath(XML:obj, Path:str):str
+   local err, value = XML.mtEvaluate(Path)
+   if err != ERR_Okay then return nil end
+   return value
+end
+
+capabilities.parseDeviceInfo = function(response:table):<table, str>
    if not response or not response.command then
       return nil, 'No response data'
    end
@@ -20,24 +28,24 @@ capabilities.parseDeviceInfo = function(response:table)
    msg('Parsing device info from response: ' .. response.command)
 
    info.xml = obj.new('xml', { statement=response.message })
-   info.model    = info.xml.getKey('/response/device/model')
-   info.firmware = info.xml.getKey('/response/device/firmwareversion')
-   info.mac      = info.xml.getKey('/response/device/macaddress')
-   info.year     = info.xml.getKey('/response/device/year')
-   info.category = info.xml.getKey('/response/device/category')
-   info.serial   = info.xml.getKey('/response/device/deviceserial')
+   info.model    = evaluatePath(info.xml, '/response/device/model')
+   info.firmware = evaluatePath(info.xml, '/response/device/firmwareversion')
+   info.mac      = evaluatePath(info.xml, '/response/device/macaddress')
+   info.year     = evaluatePath(info.xml, '/response/device/year')
+   info.category = evaluatePath(info.xml, '/response/device/category')
+   info.serial   = evaluatePath(info.xml, '/response/device/deviceserial')
    return info
 end
 
 ----------------------------------------------------------------------------------------------------------------------
 -- Create device info from discovery data (fallback when NRIIQSTN fails)
 
-capabilities.createDeviceInfoFromDiscovery = function(discoveryData:table)
+capabilities.createDeviceInfoFromDiscovery = function(discoveryData:table):<table, str>
    if not discoveryData then
       return nil, 'No discovery data provided'
    end
 
-   local info = {
+   return {
       model    = discoveryData.model,
       firmware = nil, -- Not available from discovery
       mac      = discoveryData.mac,
@@ -45,8 +53,6 @@ capabilities.createDeviceInfoFromDiscovery = function(discoveryData:table)
       port     = discoveryData.port,
       raw      = discoveryData.raw or 'From discovery'
    }
-
-   return info
 end
 
 ----------------------------------------------------------------------------------------------------------------------
@@ -64,7 +70,7 @@ capabilities.findModelsets = function(model:str):table
    for setName, models in pairs(glCommands.modelsets) do
       for deviceModel in values(models) do
          if deviceModel is model then
-            table.insert(modelsets, setName)
+            modelsets.insert(setName)
             break
          end
       end
@@ -75,14 +81,14 @@ capabilities.findModelsets = function(model:str):table
          for deviceModel in values(models) do
             -- Partial match: device model might be base name of a variant
             -- e.g., "TX-NR676E" should match "TX-NR676E(Ether)"
-            if deviceModel:match(f'^{regex.escape(model)}\\(') then
-               table.insert(modelsets, setName)
+            if deviceModel.startsWith(model .. '(') then
+               modelsets.insert(setName)
                break
             end
             -- Reverse partial match: modelset might have base name
             -- e.g., "TX-NR676E(Ether)" device should match "TX-NR676E" modelset entry
-            if model:match(f'^{regex.escape(deviceModel)}\\(') then
-               table.insert(modelsets, setName)
+            if model.startsWith(deviceModel .. '(') then
+               modelsets.insert(setName)
                break
             end
          end
@@ -183,9 +189,9 @@ capabilities.getAvailableZones = function():table
 
    zones = {}
    for zone, _ in pairs(glCommands.commands) do
-      table.insert(zones, zone)
+      zones.insert(zone)
    end
 
-   table.sort(zones)
+   zones.sort()
    return zones
 end

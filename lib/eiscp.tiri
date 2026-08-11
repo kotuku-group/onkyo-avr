@@ -29,23 +29,23 @@ Core eISCP (Integra Serial Control Protocol) implementation for Onkyo receivers
 ----------------------------------------------------------------------------------------------------------------------
 -- Utility functions
 
-function bytesToString(data:any, length:num):str
+function bytesToString(data:array<any>, length:num):str
    result = ''
-   for i = 0, length-1 do
+   for i in {0 to length} do
       result ..= string.char(data[i])
    end
    return result
 end
 
-function stringToBytes(String:str):array
+function stringToBytes(String:str):array<any>
    bytes = array.new(#String, 'byte')
-   for i = 0, #String-1 do
+   for i in {0 to #String} do
       bytes[i] = string.byte(String, i)
    end
    return bytes
 end
 
-function uint32ToBytes(value:num):array
+function uint32ToBytes(value:num):array<any>
    return array<int> { (value>>24) & 0xFF, (value>>16) & 0xFF, (value>>8) & 0xFF, value & 0xFF }
 end
 
@@ -69,7 +69,7 @@ end
 -- Reserved:    0x00, 0x00, 0x00 (3 bytes)
 -- Data:        ISCP message
 
-function createEISCPPacket(iscpMessage:str):array
+function createEISCPPacket(iscpMessage:str):array<byte>
    dataSize = #iscpMessage
    packet = array.new(HEADER_SIZE + dataSize, 'byte')
 
@@ -96,7 +96,7 @@ function createEISCPPacket(iscpMessage:str):array
    packet[15] = 0x00
 
    -- Append ISCP message data
-   for i = 0, #iscpMessage-1 do
+   for i in {0 to #iscpMessage} do
       packet[HEADER_SIZE + i] = string.byte(iscpMessage, i)
    end
 
@@ -107,16 +107,22 @@ end
 -- Incoming response parser.  Designed to handle partial reads (returns nothing).
 -- Result: { command, packet_size }
 
-function parseEISCPResponse(Buffer)
+function parseEISCPResponse(Buffer:array<byte>):table
    if #Buffer < HEADER_SIZE then return end -- Incomplete eISCP header
 
-   assert(bytesToString(Buffer, 4) is 'ISCP', 'Invalid eISCP packet: missing ISCP identifier.')
+   local head = bytesToString(Buffer, 4)
+   assert(head is 'ISCP', f'Invalid eISCP packet: missing ISCP identifier, got {head}.')
 
    headerSize = bytesToUint32(Buffer, 4)
    if headerSize != HEADER_SIZE then return end
 
    dataSize = bytesToUint32(Buffer, 8)
-   assert(#Buffer >= HEADER_SIZE + dataSize, f'Incomplete eISCP packet: {#Buffer - HEADER_SIZE} < {dataSize}')
+   assert(dataSize <= MAX_RESPONSE_LEN, f'Oversized eISCP packet: {dataSize} exceeds {MAX_RESPONSE_LEN} bytes')
+
+   if #Buffer < HEADER_SIZE + dataSize then -- Partial read; wait for the remaining data
+      msg(f'Incomplete eISCP packet: {#Buffer - HEADER_SIZE} of {dataSize} bytes received')
+      return
+   end
 
    version = Buffer[12]
    assert(version is EISCP_VERSION, 'Warning: Unexpected eISCP version: ' .. version)
@@ -124,41 +130,41 @@ function parseEISCPResponse(Buffer)
    -- Extract ISCP message
 
    iscpMessage = ''
-   for i=0, dataSize-1 do
+   for i in {0 to dataSize} do
       iscpMessage ..= string.char(Buffer[HEADER_SIZE + i])
    end
 
-   assert(iscpMessage:substr(0, 2) is '!1', 'Invalid ISCP message format: missing !1 prefix')
+   assert(iscpMessage.sub(0, 2) is '!1', 'Invalid ISCP message format: missing !1 prefix')
 
    -- According to official spec:
    -- Controller->Device: !1{command}[CR] or [LF] or [CR][LF]
    -- Device->Controller: !1{command}[EOF][CR][LF]
 
-   payload = iscpMessage:substr(2) -- Strip !1 prefix
+   payload = iscpMessage.sub(2) -- Strip !1 prefix
 
    -- Check for device response pattern: {command}[EOF][CR][LF]
 
    command = nil
-   if payload:substr(-3) is EOF .. CR .. LF then
-      command = payload:substr(0, -4)
-   elseif payload:substr(-2) is EOF .. CR then -- Check for device response pattern: {command}[EOF][CR]
-      command = payload:substr(0, -3)
-   elseif payload:substr(-1) is EOF then -- Check for device response pattern: {command}[EOF]
-      command = payload:substr(0, -2)
-   elseif payload:substr(-2) is CR .. LF then -- Check for controller pattern: {command}[CR][LF]
-      command = payload:substr(0, -3)
-   elseif payload:substr(-1) is CR then -- Check for controller pattern: {command}[CR]
-      command = payload:substr(0, -2)
-   elseif payload:substr(-1) is LF then -- Check for controller pattern: {command}[LF]
-      command = payload:substr(0, -2)
+   if payload.sub(-3) is EOF .. CR .. LF then
+      command = payload.sub(0, -4)
+   elseif payload.sub(-2) is EOF .. CR then -- Check for device response pattern: {command}[EOF][CR]
+      command = payload.sub(0, -3)
+   elseif payload.sub(-1) is EOF then -- Check for device response pattern: {command}[EOF]
+      command = payload.sub(0, -2)
+   elseif payload.sub(-2) is CR .. LF then -- Check for controller pattern: {command}[CR][LF]
+      command = payload.sub(0, -3)
+   elseif payload.sub(-1) is CR then -- Check for controller pattern: {command}[CR]
+      command = payload.sub(0, -2)
+   elseif payload.sub(-1) is LF then -- Check for controller pattern: {command}[LF]
+      command = payload.sub(0, -2)
    else -- No terminators found - use entire payload
       command = payload
    end
 
    return {
       data = command,
-      command = command:substr(0,3),
-      message = command:substr(3),
+      command = command.sub(0,3),
+      message = command.sub(3),
       packet_size = HEADER_SIZE + dataSize
    }
 end
@@ -166,7 +172,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 -- Connection management.  Throws on error.
 
-function eiscp.connect(Host, Port, Timeout, LogFile)
+function eiscp.connect(Host, Port, Timeout, LogFile):table
    assert(Host, 'Host parameter is required')
 
    Port ?= DEFAULT_PORT
@@ -184,7 +190,7 @@ function eiscp.connect(Host, Port, Timeout, LogFile)
       deviceModelsets   = {},
       responseLogHandle = nil,
       responses         = { },
-      buffer            = { }
+      buffer            = array<byte>
    }
 
    connection.socket = obj.new('netsocket', {
@@ -208,9 +214,8 @@ function eiscp.connect(Host, Port, Timeout, LogFile)
 
          if (err is ERR_Okay) and (bytes_read > 0) then
             -- Append to our buffer
-            -- TODO This is slow, probably could use a preallocated string
-            for i = 0, bytes_read-1 do
-               table.insert(connection.buffer, string.byte(read_buffer, i))
+            for i in {0 to bytes_read} do
+               connection.buffer.push(string.byte(read_buffer, i))
             end
 
             -- Try to parse response
@@ -223,9 +228,9 @@ function eiscp.connect(Host, Port, Timeout, LogFile)
 
                   -- Remove consumed bytes from buffer, keep remaining data
                   local consumed = response.packet_size
-                  local remaining = {}
-                  for i = consumed, #connection.buffer-1 do
-                      table.insert(remaining, connection.buffer[i])
+                  local remaining = array<byte>
+                  for i in {consumed to #connection.buffer} do
+                      remaining.push(connection.buffer[i])
                   end
                   connection.buffer = remaining
                   msg(f'Reduced buffer content to {#connection.buffer} bytes.')
@@ -273,13 +278,13 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 -- Log packet data
 
-function Connection:logPacket(command, packetBytes, direction)
+function Connection.logPacket(self, command, packetBytes, direction)
    self.responseLogHandle ?! return
 
    -- Convert packet bytes to hex string
    hexString = ''
-   for i = 0, #packetBytes-1 do
-      hexString ..= string.format('%02X', packetBytes[i])
+   for i in {0 to #packetBytes} do
+      hexString ..= '%02X'.format(packetBytes[i])
    end
 
    -- Format: DIRECTION:COMMAND:BYTE_LEN:HEX_DATA\n
@@ -290,26 +295,26 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 -- Connection instance methods
 
-function Connection:disconnect()
+function Connection.disconnect(self)
    if self.socket then
       msg('Disconnecting')
 
       self.responseLogHandle = nil
       self.socket = nil
       self.lastResponse = nil
-      self.buffer = { }
+      self.buffer = array<byte>
       processing.collect()
    end
 end
 
-function Connection:isConnected()
+function Connection.isConnected(self)
    return self.socket != nil
 end
 
 ----------------------------------------------------------------------------------------------------------------------
 -- Helper function to clear pending responses from socket buffer (like Python implementation)
 
-function Connection:clearPendingResponses()
+function Connection.clearPendingResponses(self)
    self.socket ?! return
 
    msg('Clearing pending responses from socket buffer...')
@@ -333,7 +338,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 -- Helper function to read a single response with timeout.  Throws on error.
 
-function Connection:readResponse(Command:str, Timeout:num)
+function Connection.readResponse(self, Command:str, Timeout:num):table
    msg(f'Waiting for response to command "{Command}" with timeout {Timeout}s...')
    end_time = mSys.PreciseTime() + (Timeout * 1000000)
 
@@ -354,39 +359,39 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 -- Command interface
 
-function Connection:sendCommand(Command, Timeout)
+function Connection.sendCommand(self, Command, Timeout)
    self.socket ?! raise ERR_Disconnected
 
    Timeout ?= DEFAULT_TIMEOUT
 
    msg('Sending command: ' .. Command)
 
-   self:clearPendingResponses()
+   self.clearPendingResponses(self)
    packet = createEISCPPacket(createISCPMessage(Command))
 
    -- Convert packet to string for transmission
    packet_data = ''
-   for i = 0, #packet-1 do
+   for i in {0 to #packet} do
       packet_data ..= string.char(packet[i])
    end
 
-   self:logPacket(Command, packet, 'SEND')
+   self.logPacket(self, Command, packet, 'SEND')
 
    check self.socket.acWrite(packet_data)
    msg(f'Packet sent ({#packet_data} bytes); Timeout: {Timeout}s')
 
-   response = self:readResponse(Command:substr(0, 3), Timeout)
+   response = self.readResponse(self, Command.sub(0, 3), Timeout)
 
    msg(f'Found matching response for {Command}: {#response.data} bytes')
    self.lastResponse = response
-   self:logPacket(Command, response.data, 'RECV')
+   self.logPacket(self, Command, response.data, 'RECV')
 end
 
 ----------------------------------------------------------------------------------------------------------------------
 
-function Connection:getDeviceInfo(discoveryData)
-   local dev_info, error
-   self:sendCommand('NRIQSTN') -- Device information query returns full XML
+function Connection.getDeviceInfo(self, discoveryData)
+   local dev_info:table, error:str
+   self.sendCommand(self, 'NRIQSTN') -- Device information query returns full XML
    if self.lastResponse then
       dev_info, error = capabilities.parseDeviceInfo(self.lastResponse)
    end
@@ -401,7 +406,7 @@ function Connection:getDeviceInfo(discoveryData)
       self.deviceInfo = dev_info
       self.deviceModel = dev_info.model
       self.deviceModelsets = capabilities.findModelsets(dev_info.model)
-      msg(f'Device detected: {dev_info.model or "unknown"} (modelsets: {table.concat(self.deviceModelsets, ", ")})')
+      msg(f'Device detected: {dev_info.model or "unknown"} (modelsets: {self.deviceModelsets.concat(", ")})')
    else
       msg(f'Failed to get device info: {error or "unknown error"}')
    end
@@ -410,7 +415,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 -- Get available commands for the connected device in the specified zone
 
-function Connection:getAvailableCommands(Zone)
+function Connection.getAvailableCommands(self, Zone):table
    Zone ?= 'main'
    msg('getAvailableCommands() Zone: ' .. Zone)
 
@@ -421,7 +426,7 @@ end
 
 -- Check if the device is detected and has model information
 
-function Connection:isDeviceDetected()
+function Connection.isDeviceDetected(self):bool
    return self.deviceInfo != nil and self.deviceModel != nil
 end
 

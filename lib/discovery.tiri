@@ -5,7 +5,7 @@
    discovery = _LIB[_NS]
 
    include 'network'
-   mNet ?= mod.load('network')
+   module network as mNet
 
    import './eiscp'
 
@@ -33,30 +33,30 @@ function parseDeviceInfo(Response:str):table
 
    -- Handle both formats: with or without !1ECN prefix
    local data
-   if Response:startsWith('!1ECN') then
-      data = Response:substr(4)
-   elseif Response:startsWith('ECN') then
-      data = Response:substr(3)
+   if Response.startsWith('!1ECN') then
+      data = Response.sub(5)
+   elseif Response.startsWith('ECN') then
+      data = Response.sub(3)
    else
       error('Warning: Unrecognized discovery response format: ' .. Response)
    end
-   parts = regex.new('[^\\/]+').split(data)
+   parts = regex.new('/').split(data)
 
    if #parts < 4 then
       msg('Warning: Incomplete device info: ' .. data)
       return {
-         model = parts[1] or 'Unknown',
-         port  = tonumber(parts[2]) or DISCOVERY_PORT,
-         area  = parts[3] or 'Unknown',
-         mac   = parts[4] or 'Unknown'
+         model = parts[0] or 'Unknown',
+         port  = tonumber(parts[1]) or DISCOVERY_PORT,
+         area  = parts[2] or 'Unknown',
+         mac   = parts[3] or 'Unknown'
       }
    end
 
    return {
-      model = parts[1],
-      port  = tonumber(parts[2]),
-      area  = parts[3],
-      mac   = parts[4],
+      model = parts[0],
+      port  = tonumber(parts[1]),
+      area  = parts[2],
+      mac   = parts[3],
       raw   = Response
    }
 end
@@ -64,10 +64,10 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 -- Discovery implementation
 
-discovery.findReceivers = function(Timeout, FilterIP, Limit)
+discovery.findReceivers = function(Timeout:num, FilterIP, Limit:num):table
    Timeout = Timeout or DISCOVERY_TIMEOUT
 
-   msg('Starting receiver discovery; Timeout: ' .. Timeout .. 's, Filter: ' .. tostring(FilterIP) .. ', Limit: ' .. tostring(Limit))
+   msg(f'Starting receiver discovery; Timeout: {Timeout}s, Filter: {FilterIP}, Limit: {Limit}')
 
    receivers = {}
    proc = processing.new({ timeout = Timeout })
@@ -80,7 +80,7 @@ discovery.findReceivers = function(Timeout, FilterIP, Limit)
    -- Convert packet arrays to strings for transmission
    function packetToString(packet)
       local str = ''
-      for i = 0, #packet-1 do
+      for i in {0 to #packet} do
          str ..= string.char(packet[i])
       end
       return str
@@ -117,8 +117,8 @@ discovery.findReceivers = function(Timeout, FilterIP, Limit)
                   end
 
                   -- Parse eISCP packet - convert string to byte array
-                  local byteArray = {}
-                  for i = 0, bytesRead-1 do
+                  local byteArray = array.new(bytesRead, 'byte')
+                  for i in {0 to bytesRead} do
                      byteArray[i] = string.byte(buffer, i)
                   end
 
@@ -141,7 +141,7 @@ discovery.findReceivers = function(Timeout, FilterIP, Limit)
                         end
 
                         if not found then
-                           table.insert(receivers, deviceInfo)
+                           receivers.insert(deviceInfo)
                            msg('Found receiver: ' .. deviceInfo.model .. ' at ' .. senderIP .. ':' .. deviceInfo.port .. ', Limit: ' .. (Limit ?? -1))
                            if Limit and #receivers >= Limit then
                               proc.signal()
@@ -153,7 +153,7 @@ discovery.findReceivers = function(Timeout, FilterIP, Limit)
                         msg('Could not parse device info from ISCP message')
                      end
                   else
-                     msg('Raw data (not eISCP): ' .. buffer:substr(0, math.min(bytesRead, 20)))
+                     msg('Raw data (not eISCP): ' .. buffer.sub(0, math.min(bytesRead, 20)))
                   end
                elseif err != ERR_Okay then
                   msg('RecvFrom() error: ' .. mSys.GetErrorMsg(err))
@@ -172,7 +172,7 @@ discovery.findReceivers = function(Timeout, FilterIP, Limit)
                if err is ERR_Okay then
                   totalSent++
                   msg('Sent eISCP discovery packet to ' .. iface.broadcast .. ' (' .. bytesSent .. ' bytes)')
-                  table.insert(sockets, socket)
+                  sockets.insert(socket)
                else
                   msg('Failed to send via iface ' .. iface.addr .. ': ' .. mSys.GetErrorMsg(err))
                   socket = nil
@@ -202,8 +202,8 @@ discovery.findReceivers = function(Timeout, FilterIP, Limit)
    return receivers
 end
 
-discovery.findReceiver = function(FilterIP, Timeout)
-   local receivers
+discovery.findReceiver = function(FilterIP, Timeout:num):table
+   local receivers:table
    if FilterIP then -- Return info for a specific receiver
       receivers = discovery.findReceivers(Timeout, FilterIP, nil)
    else -- Return the first receiver found
@@ -233,7 +233,7 @@ discovery.listReceivers = function(Timeout)
    print('')
 
    for i, receiver in ipairs(receivers) do
-      print('  ' .. i .. '. ' .. receiver.model)
+      print('  ' .. (i + 1) .. '. ' .. receiver.model)
       print('     IP: ' .. (receiver.ip or 'Unknown'))
       print('     Port: ' .. (receiver.port or 'Unknown'))
       print('     Area: ' .. (receiver.area or 'Unknown'))
