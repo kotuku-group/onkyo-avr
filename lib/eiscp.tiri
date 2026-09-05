@@ -2,10 +2,7 @@
 Core eISCP (Integra Serial Control Protocol) implementation for Onkyo receivers
 --]]
 
-   namespace 'eiscp'
-   _LIB[_NS] = { }
-   eiscp = _LIB[_NS]
-
+   namespace eiscp {}
    include 'network'
 
    glSelf = obj.find('self')
@@ -38,7 +35,7 @@ function bytesToString(data:array<any>, length:num):str
 end
 
 function stringToBytes(String:str):array<any>
-   bytes = array.new(#String, 'byte')
+   bytes = array<byte, #String>
    for i in {0 to #String} do
       bytes[i] = string.byte(String, i)
    end
@@ -71,7 +68,8 @@ end
 
 function createEISCPPacket(iscpMessage:str):array<byte>
    dataSize = #iscpMessage
-   packet = array.new(HEADER_SIZE + dataSize, 'byte')
+   len = HEADER_SIZE + dataSize
+   packet = array<byte, len>
 
    packet[0] = string.byte('I')
    packet[1] = string.byte('S')
@@ -246,7 +244,7 @@ function eiscp.connect(Host, Port, Timeout, LogFile):table
       end
    })
 
-   connection.proc = processing.new({ timeout = Timeout, signals = array<object> { connection.socket } })
+   connection.proc = processing.new({ timeout = Timeout, signals = array<obj> { connection.socket } })
    check connection.socket.mtConnect(Host, Port)
    check connection.proc.sleep(Timeout) -- Wait for connection to succeed
    check connect_error

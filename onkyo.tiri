@@ -59,7 +59,7 @@ For verbose logging add --log-api.]],
          { name = 'discover', kind = 'flag',
            comment = 'Discover Onkyo receivers via UDP broadcast.' },
          { name = 'info', kind = 'option', type = 'enum',
-           choices = array<string> { 'true', 'verbose' }, implicit = 'true',
+           choices = array<str> { 'true', 'verbose' }, implicit = 'true',
            comment = 'Show device information and available commands.' },
          { name = 'command', kind = 'option', type = 'str', metavar = 'VALUE',
            comment = 'Send raw ISCP command(s), comma-separated for multiple commands.' },
@@ -93,7 +93,7 @@ For verbose logging add --log-api.]],
 
    for command, cmddef in pairs(glCommands.commands.main) do
       if not parser.getParam(command) then
-         names = array<string> { command }
+         names = array<str> { command }
          lower_name = command.lower()
          if lower_name != command and not parser.getParam(lower_name) then
             names.push(lower_name)
@@ -356,8 +356,8 @@ function findCommandValue(Command:str, Value:str):str
    return nil
 end
 
-function collectFriendlyCommands(Args:table):<array<string>, str, str>
-   commands = array<string>
+function collectFriendlyCommands(Args:table):<array<str>, str, str>
+   commands = array<str>
 
    for option in values(glFriendlyOptions) do
       value = Args[option.name]

@@ -3,9 +3,7 @@ Device capabilities mapping for Onkyo eISCP devices
 Handles model detection, modelset mapping, and command filtering
 --]]
 
-   namespace 'capabilities'
-   _LIB[_NS] = { }
-   capabilities = _LIB[_NS]
+   namespace capabilities {}
 
 ----------------------------------------------------------------------------------------------------------------------
 -- Parse NRIQSTN XML response to extract device information

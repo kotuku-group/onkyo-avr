@@ -1,9 +1,6 @@
 --[[ Network discovery for Onkyo receivers using UDP broadcast --]]
 
-   namespace 'discovery'
-   _LIB[_NS] = { }
-   discovery = _LIB[_NS]
-
+   namespace discovery {}
    include 'network'
    module network as mNet
 
@@ -117,7 +114,7 @@ discovery.findReceivers = function(Timeout:num, FilterIP, Limit:num):table
                   end
 
                   -- Parse eISCP packet - convert string to byte array
-                  local byteArray = array.new(bytesRead, 'byte')
+                  local byteArray = array<byte, bytesRead>
                   for i in {0 to bytesRead} do
                      byteArray[i] = string.byte(buffer, i)
                   end
