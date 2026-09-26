@@ -238,7 +238,7 @@ function doConnect():table
 
    processing.collect()
 
-   glConfig.host ?? error('Error: No target host specified and no receivers found on the network. Use host=IP or discover first.')
+   glConfig.host ?! raise 'Error: No target host specified and no receivers found on the network. Use host=IP or discover first.'
 
    print('Connecting to ' .. glConfig.host .. ':' .. glConfig.port .. '...')
 

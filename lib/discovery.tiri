@@ -35,7 +35,7 @@ function parseDeviceInfo(Response:str):table
    elseif Response.startsWith('ECN') then
       data = Response.sub(3)
    else
-      error('Warning: Unrecognized discovery response format: ' .. Response)
+      raise 'Warning: Unrecognized discovery response format: ' .. Response
    end
    parts = regex.new('/').split(data)
 
